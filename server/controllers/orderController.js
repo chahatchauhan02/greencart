@@ -24,7 +24,7 @@ export const placeOrderCOD = async(req, res)=>{
             address,
             paymentType: "COD"
         });
-        return res.json({success: true, message: "Oder Placed Successfully"});
+        return res.json({success: true, message: "Order Placed Successfully"});
     } catch (error) {
         return res.json({success: false, message: error.message});
     }
@@ -97,6 +97,7 @@ export const placeOrderStripe = async(req, res)=>{
 
 //Streipe Webhooks to Verify Payments Action : /striped
 export const stripeWebhooks = async(request, response)=>{
+    console.log("Webhook called");
     //Stripe Gateway Initialize
     const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -108,13 +109,15 @@ export const stripeWebhooks = async(request, response)=>{
             sig,
             process.env.STRIPE_WEBHOOK_SECRET
         );
+        console.log("Event type:", event.type);
     } catch (error) {
+        console.log("Webhook Error:", error.message);
         response.status(400).send(`Webhook Error: ${error.message}`)
     }
 
     //Handle the event
     switch (event.type) {
-        case payment_intent.succeeded: {
+        case "payment_intent.succeeded": {
             const paymentIntent = event.data.object;
             const paymentIntentId = paymentIntent.id;
 
